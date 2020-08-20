@@ -19,6 +19,6 @@ spec:
         env:
         - name: LABEL
           value: "{{ .Values.label }}"
-        - name: IGNORE_NAMSPACES
+        - name: IGNORE_NAMESPACES
           value: "{{ .Values.ignore_namespaces }}"
       serviceAccountName: {{ .Release.Name }}

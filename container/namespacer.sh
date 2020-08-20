@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -x 
 
 ARRAY_COUNT=`jq -r '. | length-1' ${BINDING_CONTEXT_PATH}`
 
@@ -38,7 +39,7 @@ else
     else
       if [[ "${resourceEvent}" == "Added" ]] ; then
         echo "Namespace ${resourceName} was created"
-        if [[ "${resourceName}" == ${IGNORE_NAMESPACE} ]]; then 
+        if [[ "${resourceName}" == "${IGNORE_NAMESPACES}" ]]; then 
           echo "Namespace ${resourceName} is on the ignore list, skipping"
         else 
           kubectl label namespace ${resourceName} ${LABEL}
