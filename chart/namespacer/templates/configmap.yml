@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2016-02-18T18:52:05Z
+  name: {{ .Release.Name }}
+data:
+  settings:  |-
+    {
+      "labels":["a=b", "foo=bar"],
+      "annotations":["x=y", "bar=baz"],
+      "ignore_namespaces":["kube-system", "test33"]
+    }

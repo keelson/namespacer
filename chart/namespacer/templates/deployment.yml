@@ -21,4 +21,11 @@ spec:
           value: "{{ .Values.label }}"
         - name: IGNORE_NAMESPACES
           value: "{{ .Values.ignore_namespaces }}"
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
       serviceAccountName: {{ .Release.Name }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ .Release.Name }}
