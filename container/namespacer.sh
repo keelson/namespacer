@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-set -x 
+set -e
+source ./functions.sh
 
-CONFIG_FILE="/etc/config/settings.json"
 ARRAY_COUNT=$(jq -r '. | length-1' ${BINDING_CONTEXT_PATH})
 
 if [[ $1 == "--config" ]] ; then
@@ -25,39 +25,8 @@ else
   for IND in $(seq 0 ${ARRAY_COUNT})
   do
     # extract namespace from binding context
-    resourceName=$(jq -r ".[${IND}].object.metadata.name" ${BINDING_CONTEXT_PATH})
-
-    # extract values from config
-    for label in $(cat ${CONFIG_FILE} | jq -r  '.labels| join(" ")')
-      do labels+=($label)
-    done
-    for annotation in $(cat ${CONFIG_FILE} | jq -r  '.annotations| join(" ")')
-      do annotations+=($annotation)
-    done
-    for namespace in $(cat ${CONFIG_FILE} | jq -r  '.ignore_namespaces| join(" ")')
-      do ignore_namespaces+=($namespace)
-    done
-    echo "Namespace ${resourceName} was created"
-    # check if namespace should be ignored
-    listed=0
-    for element in "${ignore_namespaces[@]}"
-      do
-      echo "comparing $element: $resourceName"
-      if [[ ${element} =~ ^${resourceName}$ ]] ; then
-        listed=1
-      fi
-    done
-    if [[ ${listed} -ne 0 ]]; then 
-      echo "Namespace ${resourceName} is on the ignore list, skipping"
-    else 
-      for label in ${labels[@]}
-        do 
-          kubectl label namespace --overwrite=true  ${resourceName} ${label} 
-      done   
-      for annotation in ${annotations[@]}
-        do 
-          kubectl annotate namespace --overwrite=true ${resourceName} ${annotation} 
-      done   
-    fi
+    current_namespace=$(jq -r ".[${IND}].object.metadata.name" ${BINDING_CONTEXT_PATH})
+    echo "namespace ${current_namespace} has been created"
+    namespace_handler ${current_namespace}
   done
 fi

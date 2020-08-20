@@ -8,5 +8,5 @@ data:
     {
       "labels":["a=b", "foo=bar"],
       "annotations":["x=y", "bar=baz"],
-      "ignore_namespaces":["kube-system", "test33"]
+      "ignore_namespaces":["test33", "default","gke-tools","ingress","kuard","kube-node-lease","kube-public","kube-system","logging","monitoring","mysql-operator","nextcloud"]
     }
