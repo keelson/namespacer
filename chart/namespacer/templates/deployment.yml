@@ -16,4 +16,9 @@ spec:
       - name: {{ .Release.Name }}
         image: quay.io/keelson/namespacer
         imagePullPolicy: Always
+        env:
+        - name: LABEL
+          value: "{{ .Values.label }}"
+        - name: IGNORE_NAMSPACES
+          value: "{{ .Values.ignore_namespaces }}"
       serviceAccountName: {{ .Release.Name }}
