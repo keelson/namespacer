@@ -4,7 +4,7 @@ metadata:
   creationTimestamp: 2016-02-18T18:52:05Z
   name: {{ .Release.Name }}
 data:
-  settings:  |-
+  settings.json:  |-
     {
       "labels":["a=b", "foo=bar"],
       "annotations":["x=y", "bar=baz"],

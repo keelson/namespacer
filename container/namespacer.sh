@@ -1,24 +1,18 @@
 #!/usr/bin/env bash
 set -x 
 
-ARRAY_COUNT=`jq -r '. | length-1' ${BINDING_CONTEXT_PATH}`
+CONFIG_FILE="/etc/config/settings.json"
+ARRAY_COUNT=$(jq -r '. | length-1' ${BINDING_CONTEXT_PATH})
 
 if [[ $1 == "--config" ]] ; then
   cat <<EOF
 configVersion: v1
 kubernetes:
-- name: OnCreateDeleteNamespace
+- name: createnamespace
   apiVersion: v1
   kind: Namespace
   executeHookOnEvent:
   - Added
-  - Deleted
-- name: OnModifiedNamespace
-  apiVersion: v1
-  kind: Namespace
-  executeHookOnEvent:
-  - Modified
-  jqFilter: ".metadata.labels"
 EOF
 else
   # ignore Synchronization for simplicity
@@ -28,25 +22,42 @@ else
     exit 0
   fi
 
-  for IND in `seq 0 ${ARRAY_COUNT}`
+  for IND in $(seq 0 ${ARRAY_COUNT})
   do
-    bindingName=`jq -r ".[${IND}].binding" ${BINDING_CONTEXT_PATH}`
-    resourceEvent=`jq -r ".[${IND}].watchEvent" ${BINDING_CONTEXT_PATH}`
-    resourceName=`jq -r ".[${IND}].object.metadata.name" ${BINDING_CONTEXT_PATH}`
+    # extract namespace from binding context
+    resourceName=$(jq -r ".[${IND}].object.metadata.name" ${BINDING_CONTEXT_PATH})
 
-    if [[ "${bindingName}" == "OnModifiedNamespace" ]] ; then
-      echo "Namespace ${resourceName} labels were modified"
-    else
-      if [[ "${resourceEvent}" == "Added" ]] ; then
-        echo "Namespace ${resourceName} was created"
-        if [[ "${resourceName}" == "${IGNORE_NAMESPACES}" ]]; then 
-          echo "Namespace ${resourceName} is on the ignore list, skipping"
-        else 
-          kubectl label namespace ${resourceName} ${LABEL}
-        fi
-      else
-        echo "Namespace ${resourceName} was deleted"
+    # extract values from config
+    for label in $(cat ${CONFIG_FILE} | jq -r  '.labels| join(" ")')
+      do labels+=($label)
+    done
+    for annotation in $(cat ${CONFIG_FILE} | jq -r  '.annotations| join(" ")')
+      do annotations+=($annotation)
+    done
+    for namespace in $(cat ${CONFIG_FILE} | jq -r  '.ignore_namespaces| join(" ")')
+      do ignore_namespaces+=($namespace)
+    done
+    echo "Namespace ${resourceName} was created"
+    # check if namespace should be ignored
+    listed=0
+    for element in "${ignore_namespaces[@]}"
+      do
+      echo "comparing $element: $resourceName"
+      if [[ ${element} =~ ^${resourceName}$ ]] ; then
+        listed=1
       fi
+    done
+    if [[ ${listed} -ne 0 ]]; then 
+      echo "Namespace ${resourceName} is on the ignore list, skipping"
+    else 
+      for label in ${labels[@]}
+        do 
+          kubectl label namespace --overwrite=true  ${resourceName} ${label} 
+      done   
+      for annotation in ${annotations[@]}
+        do 
+          kubectl annotate namespace --overwrite=true ${resourceName} ${annotation} 
+      done   
     fi
   done
 fi
