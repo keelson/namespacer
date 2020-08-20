@@ -1,0 +1,6 @@
+apiVersion: v2
+name: namespacer
+description: namespace watch operator
+type: application
+version: 1.0
+appVersion: 1.0
