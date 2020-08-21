@@ -1,3 +1,22 @@
 replicas: 1
-label: "fitze=fatze"
-ignore_namespaces: "test33"
+image_name: quay.io/keelson/namespacer
+config:
+  labels: 
+    - label1=foo
+    - label2=bar
+  annotations: 
+    - annotate.io/oopsie=cat
+    - annotate.io/oops1=fox 
+  ignore_namespaces:
+    - test33
+    - default
+    - gke-tools
+    - ingress
+    - kuard
+    - kube-node-lease
+    - kube-public
+    - kube-system
+    - logging
+    - monitoring
+    - mysql-operator
+    - nextcloud

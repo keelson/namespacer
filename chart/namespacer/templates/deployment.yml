@@ -14,13 +14,8 @@ spec:
     spec:
       containers:
       - name: {{ .Release.Name }}
-        image: quay.io/keelson/namespacer
+        image: {{ .Values.image_name}}
         imagePullPolicy: Always
-        env:
-        - name: LABEL
-          value: "{{ .Values.label }}"
-        - name: IGNORE_NAMESPACES
-          value: "{{ .Values.ignore_namespaces }}"
         volumeMounts:
         - name: config
           mountPath: /etc/config

@@ -4,9 +4,5 @@ metadata:
   creationTimestamp: 2016-02-18T18:52:05Z
   name: {{ .Release.Name }}
 data:
-  settings.json:  |-
-    {
-      "labels":["a=b", "foo=bar"],
-      "annotations":["x=y", "bar=baz"],
-      "ignore_namespaces":["test33", "default","gke-tools","ingress","kuard","kube-node-lease","kube-public","kube-system","logging","monitoring","mysql-operator","nextcloud"]
-    }
+  settings.json: |-
+   {{ toJson .Values.config }}
